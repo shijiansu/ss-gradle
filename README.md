@@ -9,6 +9,7 @@
 ![](https://img.shields.io/github/languages/code-size/shijiansu/gradle)
 ![](https://img.shields.io/github/repo-size/shijiansu/gradle)
 ![](https://img.shields.io/github/last-commit/shijiansu/gradle?color=red)
+![](https://github.com/shijiansu/gradle/workflows/ci%20build/badge.svg)
 
 --------------------------------------------------------------------------------
 
