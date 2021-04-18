@@ -1,0 +1,24 @@
+// << was deprecated in 4.x and removed in 5.0;
+// repalce << to doLast;
+// task appendFilenames << {
+task appendFilenames doLast {
+    File inputDirectory = file("src");
+    File outputFile = new File(getBuildDir(), "allfiles.txt");
+    File outputDirectory = outputFile.getParentFile();
+
+    if(!outputDirectory.exists()) {
+        outputDirectory.mkdirs();
+    }
+
+    outputFile.createNewFile();
+    FileWriter fileWriter = new FileWriter(outputFile, true);
+
+    try {
+        for(File file : inputDirectory.listFiles()) {
+            fileWriter.write(file.getName() + "\n");
+        }
+    }
+    finally {
+        fileWriter.close();
+    }
+}
