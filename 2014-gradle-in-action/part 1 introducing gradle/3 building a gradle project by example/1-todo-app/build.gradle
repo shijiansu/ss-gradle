@@ -1,0 +1,23 @@
+apply plugin: 'java' // build your Java code
+
+version = 0.1
+sourceCompatibility = 1.8 // customized
+
+// add main class
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.manning.gia.todo.ToDoApp'
+    }
+}
+
+// https://docs.gradle.org/current/userguide/java_plugin.html#sec:changing_java_project_layout
+// replace the src location
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src'] // srcDirs = ['src/java']
+        }
+    }
+}
+
+buildDir = 'target' // customized
