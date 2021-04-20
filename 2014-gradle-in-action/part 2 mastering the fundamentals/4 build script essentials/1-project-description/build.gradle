@@ -1,0 +1,9 @@
+// without explicity using project variable
+setDescription("myProject")
+
+// groovy syntax
+println "Description of project $name: " + project.description
+
+task wrapper7(type: Wrapper) {
+    gradleVersion = '7.0'
+}
