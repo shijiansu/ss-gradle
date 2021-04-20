@@ -1,5 +1,6 @@
-
 ```bash
+gradle wrapper7
+
 gradle groupTherapy
 
 > Task :startSession
