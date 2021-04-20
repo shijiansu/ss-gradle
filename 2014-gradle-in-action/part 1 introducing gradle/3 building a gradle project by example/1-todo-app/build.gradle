@@ -1,5 +1,10 @@
 apply plugin: 'java' // build your Java code
 
+// extra customizing for the Gradle wrapper with v7.0
+task wrapper7(type: Wrapper) {
+    gradleVersion = '7.0'
+}
+
 version = 0.1
 sourceCompatibility = 1.8 // customized
 

@@ -15,6 +15,7 @@ public class ToDoApp {
         while (CommandLineInput.EXIT.getShortCmd() != command) {
             commandLineInputHandler.printOptions();
             String input = commandLineInputHandler.readInput();
+            // external dependencies
             System.out.println("-----> " + CharUtils.toChar(input, DEFAULT_INPUT));
             command = CharUtils.toChar(input, DEFAULT_INPUT);
             CommandLineInput commandLineInput = CommandLineInput.getCommandLineInputForInput(command);

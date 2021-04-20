@@ -1,5 +1,10 @@
 apply plugin: 'java'
 
+// extra customizing for the Gradle wrapper with v7.0
+task wrapper7(type: Wrapper) {
+    gradleVersion = '7.0'
+}
+
 repositories {
     mavenCentral()
 }
@@ -22,6 +27,7 @@ run { // configure to plugin application - task: run
 // define a customized task
 // https://docs.gradle.org/current/dsl/org.gradle.api.tasks.JavaExec.html
 // Run application with JavaExec task
+//
 task runWithJavaExec(type: JavaExec) {
     dependsOn classes
     classpath configurations.runtimeClasspath, sourceSets.main.output.classesDirs

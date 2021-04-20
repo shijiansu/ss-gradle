@@ -22,6 +22,7 @@ public class CommandLineInputHandler {
 
     public String readInput() {
         java.io.Console console = System.console();
+        // here is the "System.in"
         return new java.util.Scanner(System.in).useDelimiter(System.getProperty("line.separator")).next();
     }
 
