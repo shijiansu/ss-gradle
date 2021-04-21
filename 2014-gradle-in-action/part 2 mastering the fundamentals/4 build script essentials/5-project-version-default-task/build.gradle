@@ -1,0 +1,52 @@
+version = '0.1-SNAPSHOT'
+
+task printVersion1 doLast {
+    println  "Version: $version"
+    // logging levels (QUIET, DEBUG, ERROR, INFO, TRACE, WARN)
+    logger.quiet "Version: $version"
+}
+
+// in the IntelliJ, you can see it move to the "versioning" in Tasks
+// pass value as the input properties
+task printVersion2(group: 'versioning',
+        description: 'Prints project version.') doLast {
+    logger.quiet "Version: $version"
+}
+
+// in the IntelliJ, you can see it move to the "versioning" in Tasks
+task printVersion3 {
+    // set the group and description properties
+    group = 'versioning'
+    description = 'Prints project version.'
+
+    doLast {
+        logger.quiet "Version: $version"
+    }
+}
+
+// ----------
+
+task first doLast { println "first" }
+task second doLast { println "second" }
+
+task printVersion4 (dependsOn: [second, first]) doLast {
+    logger.quiet "Version: $version"
+}
+
+task third doLast { println "third" }
+third.dependsOn('printVersion4')
+
+// ----------
+
+// a certain resource to be cleaned up after a task that depends on it is executed.
+// A typical use case for such a resource is a web container needed to run integration tests against a deployed application.
+// to run even if the finalized task fails
+task one doLast { println "first" }
+task two doLast { println "second" }
+one.finalizedBy two
+
+// ----------
+
+task wrapper7(type: Wrapper) {
+    gradleVersion = '7.0'
+}

@@ -1,0 +1,10 @@
+// take value from "gradle.properties"
+assert project.exampleProp == 'myValue'
+
+task printGradleProperty doLast {
+    println "Second property: $someOtherProp"
+}
+
+task wrapper7(type: Wrapper) {
+    gradleVersion = '7.0'
+}

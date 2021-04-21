@@ -8,5 +8,5 @@ jar tf build/libs/3-todo-webapp-customized.war # can see all resources are packa
 ./gradlew appRun
 open http://localhost:8080/4-todo-webapp-jetty
 
-# if go to tomcatRun or jettyRun then it will override the servletContainer in build.gradle
+# if go to tomcatRun or jettyRun then it will override the "servletContainer" in build.gradle
 ```
