@@ -26,20 +26,25 @@ task printVersion {
 
 // enhanced task - the actual task that provides the values for the properties exposed
 // [START] configuration task format
-//task makeReleaseVersion(type: ReleaseVersionTask) {
-//    println 'makeReleaseVersion'
-//    release = true
-//    destFile = versionFile // destFile = file('project-version.properties')
-//}
+// will deal with the configuration part, but not execute the ReleaseVersionTask to update value
+task makeReleaseVersion(type: ReleaseVersionTask) {
+    release = true
+    destFile = versionFile // destFile = file('project-version.properties')
+}
+
+task rollbackReleaseVersion(type: ReleaseVersionTask) {
+    release = false
+    destFile = versionFile
+}
 // [END]
 
 // [START] execution task format
-tasks.register('makeReleaseVersion', ReleaseVersionTask) {
+tasks.register('makeReleaseVersion2', ReleaseVersionTask) {
     release = true
     destFile = versionFile
 }
 
-tasks.register('rollbackReleaseVersion', ReleaseVersionTask) {
+tasks.register('rollbackReleaseVersion2', ReleaseVersionTask) {
     release = false
     destFile = versionFile
 }
@@ -63,8 +68,6 @@ class ReleaseVersionTask extends DefaultTask {
         }
     }
 }
-
-
 
 // POGO
 class ProjectVersion {

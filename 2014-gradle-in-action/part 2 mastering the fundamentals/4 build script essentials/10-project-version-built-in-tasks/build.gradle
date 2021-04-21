@@ -1,0 +1,82 @@
+apply plugin: 'war'
+ext.versionFile = file('version.properties')
+
+task loadVersion {
+    project.version = readVersion()
+}
+
+ProjectVersion readVersion() {
+    logger.quiet 'Reading the version file.'
+    if (!versionFile.exists()) {
+        throw new GradleException("Required version file does not exit: $versionFile.canonicalPath")
+    }
+
+    Properties versionProps = new Properties()
+    versionFile.withInputStream { stream ->
+        versionProps.load(stream)
+    }
+
+    new ProjectVersion(versionProps.major.toInteger(), versionProps.minor.toInteger(), versionProps.release.toBoolean())
+}
+
+task makeReleaseVersion(group: 'versioning', description: 'Makes project a release version.') doLast {
+    version.release = true
+    ant.propertyfile(file: versionFile) {
+        entry(key: 'release', type: 'string', operation: '=', value: version.release)
+    }
+}
+
+// ----------
+
+// configuration task, so if execute "./gradlew -q" it also triggers
+task createDistribution(type: Zip, dependsOn: makeReleaseVersion) {
+    logger.quiet 'createDistribution...'
+    // what is the meaning of "from"
+    from war.outputs.files // refer to War Task
+    from(sourceSets*.allSource) {
+        into 'src' // put them into src directory of ZIP file
+    }
+    from(rootDir) {
+        include versionFile.name // add version file to ZIP
+    }
+}
+
+task backupReleaseDistribution(type: Copy) doLast {
+    logger.quiet 'backupReleaseDistribution...'
+    from createDistribution.outputs.files // refer to output of createDistribution output
+    into "$buildDir/backup"
+}
+
+task release(dependsOn: backupReleaseDistribution) doLast {
+    logger.quiet 'Releasing the project...'
+}
+
+// ----------
+
+class ProjectVersion {
+    Integer major
+    Integer minor
+    Boolean release
+
+    ProjectVersion(Integer major, Integer minor) {
+        this.major = major
+        this.minor = minor
+        this.release = Boolean.FALSE
+    }
+
+    ProjectVersion(Integer major, Integer minor, Boolean release) {
+        this(major, minor)
+        this.release = release
+    }
+
+    @Override
+    String toString() {
+        "$major.$minor${release ? '' : '-SNAPSHOT'}"
+    }
+}
+
+// ----------
+
+task wrapper7(type: Wrapper) {
+    gradleVersion = '7.0'
+}

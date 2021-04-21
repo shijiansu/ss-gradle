@@ -1,0 +1,97 @@
+ext.versionFile = file('version.properties')
+
+task loadVersion {
+    project.version = readVersion()
+}
+
+ProjectVersion readVersion() {
+    logger.quiet 'Reading the version file.'
+    if (!versionFile.exists()) {
+        throw new GradleException("Required version file does not exit: $versionFile.canonicalPath")
+    }
+
+    Properties versionProps = new Properties()
+    versionFile.withInputStream { stream ->
+        versionProps.load(stream)
+    }
+
+    new ProjectVersion(versionProps.major.toInteger(), versionProps.minor.toInteger(), versionProps.release.toBoolean())
+}
+
+// ----------
+
+// hook
+gradle.taskGraph.whenReady { TaskExecutionGraph taskGraph ->
+    // if the task graph is with "release"
+    if (taskGraph.hasTask(release)) {
+        if (!version.release) {
+            version.release = true
+            ant.propertyfile(file: versionFile) {
+                entry(key: 'release', type: 'string', operation: '=', value: version.release)
+            }
+        }
+    }
+}
+
+task release() doLast {
+    logger.quiet 'Releasing the project...'
+}
+
+// ----------
+
+// add listener
+class ReleaseVersionListener implements TaskExecutionGraphListener {
+    final static String releaseTaskPath = ':release2'
+
+    @Override
+    void graphPopulated(TaskExecutionGraph taskGraph) {
+        if (taskGraph.hasTask(releaseTaskPath)) {
+            List<Task> allTasks = taskGraph.allTasks
+            Task releaseTask = allTasks.find { it.path == releaseTaskPath }
+            Project project = releaseTask.project
+
+            if (!project.version.release) {
+                project.version.release = true
+                project.ant.propertyfile(file: project.versionFile) {
+                    entry(key: 'release', type: 'string', operation: '=', value: project.version.release)
+                }
+            }
+        }
+    }
+}
+
+gradle.taskGraph.addTaskExecutionGraphListener(new ReleaseVersionListener())
+
+task release2() doLast {
+    logger.quiet 'Releasing the project 2...'
+}
+
+// ----------
+
+class ProjectVersion {
+    Integer major
+    Integer minor
+    Boolean release
+
+    ProjectVersion(Integer major, Integer minor) {
+        this.major = major
+        this.minor = minor
+        this.release = Boolean.FALSE
+    }
+
+    ProjectVersion(Integer major, Integer minor, Boolean release) {
+        this(major, minor)
+        this.release = release
+    }
+
+    @Override
+    String toString() {
+        "$major.$minor${release ? '' : '-SNAPSHOT'}"
+    }
+}
+
+// ----------
+
+task wrapper7(type: Wrapper) {
+    gradleVersion = '7.0'
+}

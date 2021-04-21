@@ -1,0 +1,33 @@
+import com.manning.gia.ProjectVersion // import the pogo
+import com.manning.gia.ReleaseVersionTask
+
+ext.versionFile = file('version.properties')
+project.version = readVersion()
+
+ProjectVersion readVersion() {
+    logger.quiet 'Reading the version file.'
+    if (!versionFile.exists()) {
+        throw new GradleException("Required version file does not exit: $versionFile.canonicalPath")
+    }
+
+    Properties versionProps = new Properties()
+    versionFile.withInputStream { stream ->
+        versionProps.load(stream)
+    }
+
+    new ProjectVersion(versionProps.major.toInteger(), versionProps.minor.toInteger(), versionProps.release.toBoolean())
+}
+
+// it will invoke but it will not change the properties file value
+// I think because the Input and the Output do not change
+task makeReleaseVersion(type: ReleaseVersionTask) {
+    logger.quiet('makeReleaseVersion')
+    release = version.release
+    destFile = versionFile
+}
+
+// ----------
+
+task wrapper7(type: Wrapper) {
+    gradleVersion = '7.0'
+}
