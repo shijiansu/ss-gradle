@@ -20,8 +20,11 @@ gretty {
 }
 
 // extra customizing for the Gradle wrapper with v7.0
-task wrapper7(type: Wrapper) {
-    gradleVersion = '6.8.3' // downgrade is because gretty 3.0.3 does not work with Gradle 7 yet, waiting for gretty 4
+// task (wrapper7, type: Wrapper) { // same as below, using Groovy feature
+task wrapper7 (type: Wrapper) {
+    gradleVersion = '6.8.3' // downgrading as gretty 3.0.3 does not work with Gradle 7, waiting for gretty 4
+    // distributionUrl = 'http://myenterprise.com/gradle/dists'
+    // distributionPath = 'gradle-dists'
 }
 
 repositories {

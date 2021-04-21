@@ -1,0 +1,17 @@
+// ext == extra
+// initial declaration, use ext namespace
+project.ext.myProp = 'myValue'
+
+ext {
+    // > Configure project : 123
+    someOtherProp = 123
+}
+
+// use ext namespace to access
+assert myProp == 'myValue'
+println project.someOtherProp
+ext.someOtherProp = 567
+
+task wrapper7(type: Wrapper) {
+    gradleVersion = '7.0'
+}
