@@ -1,0 +1,32 @@
+version = '0.1-SNAPSHOT'
+
+task printVersionDoFirst {
+    doFirst {
+        println "Version: $version"
+    }
+}
+
+task printVersionDoLast {
+    doFirst {
+        println "Version: $version"
+    }
+}
+
+task printVersion {
+    doFirst {
+        println "Before reading the project version"
+    }
+
+    doLast {
+        println "Version: $version"
+    }
+}
+
+// before the "printVersion"
+printVersion.doFirst { println "First action" }
+// after the "printVersion"
+printVersion.doLast { println "Last action" }
+
+task wrapper7(type: Wrapper) {
+    gradleVersion = '7.0'
+}
