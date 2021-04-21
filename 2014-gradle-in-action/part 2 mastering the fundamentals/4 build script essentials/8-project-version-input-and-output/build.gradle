@@ -1,0 +1,73 @@
+ext.versionFile = file('version.properties')
+
+task loadVersion {
+    project.version = readVersion()
+}
+
+ProjectVersion readVersion() {
+    logger.quiet 'Reading the version file.'
+    if (!versionFile.exists()) {
+        throw new GradleException("Required version file does not exit: $versionFile.canonicalPath")
+    }
+
+    Properties versionProps = new Properties()
+    versionFile.withInputStream { stream ->
+        versionProps.load(stream)
+    }
+
+    new ProjectVersion(versionProps.major.toInteger(), versionProps.minor.toInteger(), versionProps.release.toBoolean())
+}
+
+task makeReleaseVersion1(group: 'versioning', description: 'Makes project a release version.') doLast {
+    version.release = true
+    ant.propertyfile(file: versionFile) {
+        entry(key: 'release', type: 'string', operation: '=', value: 'true')
+    }
+}
+
+task makeReleaseVersion(group: 'versioning', description: 'Makes project a release version.') {
+    inputs.property('release', version.release) // input property
+    outputs.file versionFile // output file
+
+    doLast {
+        println '[BEFORE]: ' + version.release
+        version.release = true // update this to true
+        println '[AFTER]: ' + version.release
+
+        ant.propertyfile(file: versionFile) { // use Ant API to write into file
+            entry(key: 'release', type: 'string', operation: '=', value: version.release)
+        }
+    }
+}
+
+task printVersion doLast {
+    logger.quiet "Version: $version"
+}
+
+class ProjectVersion {
+    Integer major
+    Integer minor
+    Boolean release
+
+    ProjectVersion(Integer major, Integer minor) {
+        this.major = major
+        this.minor = minor
+        this.release = Boolean.FALSE
+    }
+
+    ProjectVersion(Integer major, Integer minor, Boolean release) {
+        this(major, minor)
+        this.release = release
+    }
+
+    @Override
+    String toString() {
+        "$major.$minor${release ? '' : '-SNAPSHOT'}"
+    }
+}
+
+// ----------
+
+task wrapper7(type: Wrapper) {
+    gradleVersion = '7.0'
+}
