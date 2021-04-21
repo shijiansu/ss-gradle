@@ -7,13 +7,11 @@ task loadVersion {
 
 ProjectVersion readVersion() {
     logger.quiet 'Reading the version file.'
-
     if (!versionFile.exists()) {
         throw new GradleException("Required version file does not exit: $versionFile.canonicalPath")
     }
 
     Properties versionProps = new Properties()
-
     versionFile.withInputStream { stream ->
         versionProps.load(stream)
     }
@@ -69,4 +67,28 @@ class ProjectVersion {
     String toString() {
         "$major.$minor${release ? '' : '-SNAPSHOT'}"
     }
+}
+
+
+
+// ----------
+// backup
+task createDistribution(type: Zip, dependsOn: makeReleaseVersion) {
+    // what is the meaning of "from"
+    from war.outputs.files // refer to War Task
+    from(sourceSets*.allSource) {
+        into 'src' // put them into src directory of ZIP file
+    }
+    from(rootDir) {
+        include versionFile.name // add version file to ZIP
+    }
+}
+
+task backupReleaseDistribution(type: Copy) {
+    from createDistribution.outputs.files // refer to output of createDistribution output
+    into "$buildDir/backup"
+}
+
+task release(dependsOn: backupReleaseDistribution) doLast {
+    logger.quiet 'Releasing the project...'
 }
