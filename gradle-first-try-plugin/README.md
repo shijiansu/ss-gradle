@@ -1,3 +1,6 @@
+# Search Gradle plugins
+
+- https://plugins.gradle.org/search
 
 # Default
 
