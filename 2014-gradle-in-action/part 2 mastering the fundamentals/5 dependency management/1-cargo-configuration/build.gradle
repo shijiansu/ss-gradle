@@ -1,0 +1,102 @@
+configurations {
+    cargo { // defines new configuration by name
+        description = 'Classpath for Cargo Ant tasks.'
+        visible = false
+    }
+    spring
+}
+
+// Too old, this example is with Tomcat 7!
+task deployToLocalTomcat doLast {
+    FileTree cargoDependencies = configurations.getByName('cargo').asFileTree
+    ant.taskdef(resource: 'cargo.tasks', classpath: cargoDependencies.asPath)
+
+    // use Cargo Ant task
+    ant.cargo(containerId: 'tomcat7x', action: 'run', output: "$buildDir/output.log") {
+        configuration {
+            deployable(type: 'war', file: 'todo.war')
+        }
+
+        zipUrlInstaller(installUrl: 'http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.32/bin/apache-tomcat-7.0.32.zip')
+    }
+}
+
+// ----------
+
+ext.cargoGroup = 'org.codehaus.cargo'
+ext.cargoVersion = '1.3.1'
+
+dependencies {
+    // those dependencies are under "cargo" configuration!
+    // use Cargo. Mar, 2021 release the 1.9.3
+    // https://mvnrepository.com/artifact/org.codehaus.cargo/cargo-core-uberjar
+    cargo group: cargoGroup, name: 'cargo-core-uberjar', version: cargoVersion
+
+    // cargo "$cargoGroup:cargo-ant:$cargoVersion" // refer to variables
+    // cargo 'org.codehaus.cargo:cargo-ant:1.+' // dynamic version
+    cargo('org.codehaus.cargo:cargo-ant:1.3.1') {
+        // exclude group: 'xml-apis', module: 'xml-apis' // single exclusion
+        transitive = false // all exclusion
+    }
+    cargo 'xml-apis:xml-apis:2.0.2'
+
+    // dependencies as files
+    // cargo fileTree(dir: "${System.properties['user.home']}/libs/cargo", include: '*.jar')
+
+    spring group: 'org.springframework', name: 'org.springframework.core', version: '3.0.5.RELEASE', configuration: 'implementation'
+}
+
+repositories {
+    mavenCentral()
+    // mavenLocal() // local Maven repository
+    maven {
+        name 'Custom Maven Repository'
+        url 'https://oss.sonatype.org/content/repositories/snapshots/'
+    }
+    // ivy
+    ivy {
+        url 'https://repository.springsource.com/ivy/bundles/release'
+        patternLayout {
+            artifact '[organisation]/[module]/[revision]/[artifact]-[revision].[ext]'
+            ivy '[organisation]/[module]/[revision]/ivy-[revision].xml'
+        }
+    }
+    ivy {
+        url 'https://repository.springsource.com/ivy/bundles/external'
+        layout 'maven'
+    }
+}
+
+// copy all dependencies files to local file system
+task copyDependenciesToLocalDir(type: Copy) {
+    from configurations.cargo.asFileTree
+    into "${System.properties['user.home']}/libs/cargo"
+}
+
+// printing the concatenated file path of all Cargo dependencies
+task printDependencies doLast {
+    configurations.getByName('cargo').each { dependency ->
+        println dependency
+    }
+}
+
+task printDependencies2 doLast {
+    configurations.cargo.incoming.resolutionResult.allDependencies { DependencyResult dependencyResult ->
+        ComponentSelector selector = dependencyResult.requested
+        println selector.getDisplayName()
+    }
+}
+
+// resolution strategy
+// https://docs.gradle.org/current/dsl/org.gradle.api.artifacts.ResolutionStrategy.html
+configurations.cargo.resolutionStrategy {
+    // failOnVersionConflict() // fail if there is a conflict
+    force "$cargoGroup:cargo-ant:1.3.0" // force to use this
+    cacheDynamicVersionsFor 0, 'seconds' // cache timeout for 0s -> no cache, always get latest
+}
+
+// ----------
+
+task wrapper7(type: Wrapper) {
+    gradleVersion = '7.0'
+}
