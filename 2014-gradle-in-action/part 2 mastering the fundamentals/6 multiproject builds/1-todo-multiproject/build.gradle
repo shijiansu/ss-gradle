@@ -1,0 +1,58 @@
+// declaration of extra property projectIds as a map; property can be used in subprojects
+ext.projectIds = ['group': 'com.manning.gia', 'version': '0.1']
+
+group = projectIds.group
+version = projectIds.version
+
+task hello doLast {
+    println 'Hello from root project'
+}
+
+// actual configuration happends in the closure
+project(':model') {
+    group = projectIds.group
+    version = projectIds.version
+    apply plugin: 'java'
+
+    task hello(dependsOn: ':repository:hello') doLast {
+        println 'Hello from model project'
+    }
+}
+
+project(':repository') {
+    group = projectIds.group
+    version = projectIds.version
+    apply plugin: 'java'
+
+    dependencies {
+        implementation project(':model')
+    }
+
+    task hello doLast {
+        println 'Hello from repository project'
+    }
+}
+
+project(':web') {
+    group = projectIds.group
+    version = projectIds.version
+    apply plugin: 'java'
+    apply plugin: 'war'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        implementation project(':model') // no cascade dependencies, must declarre this
+        implementation project(':repository')
+        compileOnly 'javax.servlet:servlet-api:2.5'
+        runtimeOnly 'javax.servlet:jstl:1.2'
+    }
+}
+
+// ----------
+
+task wrapper7(type: Wrapper) {
+    gradleVersion = '7.0'
+}

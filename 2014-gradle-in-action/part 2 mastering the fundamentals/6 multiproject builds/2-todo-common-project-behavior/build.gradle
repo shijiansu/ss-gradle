@@ -1,0 +1,36 @@
+// common project behavior
+allprojects {
+    group = 'com.manning.gia'
+    version = '0.1'
+}
+
+// common project behavior
+subprojects {
+    apply plugin: 'java'
+}
+
+project(':repository') {
+    dependencies {
+        implementation project(':model')
+    }
+}
+
+project(':web') {
+    apply plugin: 'war'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        implementation project(':repository')
+        compileOnly 'javax.servlet:servlet-api:2.5'
+        runtimeOnly 'javax.servlet:jstl:1.2'
+    }
+}
+
+// ----------
+
+task wrapper7(type: Wrapper) {
+    gradleVersion = '7.0'
+}
