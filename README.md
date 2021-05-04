@@ -13,6 +13,8 @@
 
 --------------------------------------------------------------------------------
 
+- https://plugins.gradle.org/search
+
 # Execute all tests in repo
 
 `/bin/bash run-repo-test.sh`
