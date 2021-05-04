@@ -1,0 +1,31 @@
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':model')
+    testImplementation 'junit:junit:4.11'
+}
+
+test {
+    systemProperty 'items', '20' // systems variable
+    jvmArgs '-Xms128m', '-Xmx256m' // JVM heap
+
+    // access the TestLoggingContainer interface
+    testLogging {
+        showStandardStreams = true
+        // show all exception stack information
+        exceptionFormat 'full'
+        // print events, however tested no printout at Gradle 7.0
+        events 'started', 'passed', 'skipped', 'failed'
+
+        // parallel execution
+        forkEvery = 5 // every forked run 5 test classes
+        maxParallelForks = determineMaxParallelForks()
+    }
+}
+
+// in forked testing process
+def determineMaxParallelForks() {
+    (Runtime.runtime.availableProcessors() / 2) < 1 ? 1 : Runtime.runtime.availableProcessors() / 2
+}

@@ -1,0 +1,31 @@
+apply plugin: 'groovy'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':model')
+    // junit
+    testImplementation 'junit:junit:4.11'
+    // testng
+    testImplementation 'org.testng:testng:6.8'
+    // spock
+    testImplementation 'org.codehaus.groovy:groovy:2.5.6'
+    testImplementation 'org.spockframework:spock-core:1.3-groovy-2.5'
+}
+
+task testNG(type: Test) { // TestNG enhanced task
+    useTestNG()
+}
+
+test.dependsOn testNG
+
+// aggregate test report
+task aggregateTestReports(type: TestReport) {
+    destinationDir = test.reports.html.destination
+    reportOn test, testNG
+}
+
+// make the configuration happen before "check"
+check.dependsOn aggregateTestReports
