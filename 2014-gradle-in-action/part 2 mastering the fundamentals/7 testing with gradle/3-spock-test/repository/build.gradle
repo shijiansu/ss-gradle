@@ -1,0 +1,18 @@
+apply plugin: 'groovy' // add groovy support
+
+repositories {
+    mavenCentral()
+}
+
+// org.spockframework:spock-core:1.3-groovy-2.5 does not work well with JDK 13
+sourceCompatibility = 11
+targetCompatibility = 11
+
+dependencies {
+    implementation project(':model')
+    // groovy for test code
+    testImplementation 'org.codehaus.groovy:groovy:2.5.6'
+    // 20210503: 2.0.x still in M5
+    // https://mvnrepository.com/artifact/org.spockframework/spock-core/1.3-groovy-2.5
+    testImplementation 'org.spockframework:spock-core:1.3-groovy-2.5'
+}

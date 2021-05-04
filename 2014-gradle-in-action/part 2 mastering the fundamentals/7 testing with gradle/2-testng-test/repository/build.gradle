@@ -1,0 +1,10 @@
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':model')
+    testImplementation 'org.testng:testng:6.8'
+}
+
+test.useTestNG()
