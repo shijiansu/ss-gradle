@@ -1,0 +1,110 @@
+initscript {
+    repositories {
+        gradlePluginPortal()
+        maven { // custom repository, esp. for private repository
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:5.14.2"
+    }
+}
+
+// summary: settings.gradle (Initialization phase)
+// -> gradle.properties (Initialization phase)
+// -> init.d (Initialization phase)
+// -> build.gradle (Configuration phase)
+// -> task executed by command line (Execution phase)
+allprojects {
+    // https://docs.gradle.org/current/userguide/init_scripts.html
+    println "[SYSTEM] This is executed during the Initialization phase - before apply plugin"
+    // apply common plugin
+    apply plugin: com.diffplug.gradle.spotless.SpotlessPlugin
+    apply plugin: "jacoco"
+    apply plugin: "java-library"
+    // plugins{} // cannot use this because not exists yet in the Initialization phase
+
+    println "[SYSTEM] This is executed during the Initialization phase - after apply plugin"
+    // load variables
+    println "[SYSTEM] ========================================"
+    println project.name // able to access. Loaded in Initialization phase, and access in Configuration phase
+    println project.group // empty, becuase this init.d file is loaded before the build.gradle
+    println project.fromApplicationGradleProperties // able to access
+    println "[SYSTEM] ========================================"
+
+    // auto-configuration
+    spotless {
+        java {
+            googleJavaFormat()
+        }
+    }
+
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+        }
+    }
+
+    pluginManager.withPlugin('java-library') {
+        sourceCompatibility = '11'
+        dependencies {
+            implementation 'org.springframework.boot:spring-boot-starter-web'
+            testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        }
+        test {
+            useJUnitPlatform()
+        }
+    }
+
+    plugins.withType(JacocoPlugin) {
+        tasks["test"].finalizedBy 'jacocoTestReport'
+    }
+
+    // new tasks
+    def initdGroup = "init.d new tasks"
+    tasks.register("hello", GreetingTask) // create new task
+    tasks["hello"].group = initdGroup
+
+    // https://docs.gradle.org/current/userguide/build_lifecycle.html
+    // testing the lifecycle
+    afterEvaluate { project -> // at the end of Configuration phase
+        println "[SYSTEM] Adding test2 task to $project"
+        project.task("test2") {
+            group = initdGroup
+            description = "Dummy test2 task"
+            doLast {
+                println "[SYSTEM] Running tests for $project"
+            }
+        }
+    }
+
+    gradle.afterProject { project -> // before "afterEvaluate"
+        if (project.state.failure) {
+            println "[SYSTEM] Evaluation of $project FAILED"
+        } else {
+            println "[SYSTEM] Evaluation of $project succeeded"
+        }
+    }
+
+    gradle.taskGraph.beforeTask { Task task -> // before and after tasks
+        println "[SYSTEM] Executing $task ..."
+    }
+
+    gradle.taskGraph.afterTask { Task task, TaskState state -> // after tasks
+        if (state.failure) {
+            println "[SYSTEM] FAILED"
+        } else {
+            println "[SYSTEM] DONE"
+        }
+    }
+}
+
+abstract class GreetingTask extends DefaultTask {
+    @TaskAction
+    def greet() {
+        println "Hello from GreetingTask"
+
+        println project.name // able to access. Loaded in Initialization phase, and access in Execution phase
+        println project.group // able to access. Loaded in Configuration phase, and access in Execution phase
+    }
+}
