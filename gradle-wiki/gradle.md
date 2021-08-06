@@ -18,7 +18,6 @@ buildscript { // Configuration phase, similar as initscript for Initialization p
 }
 ```
 
-
 ## Dependencies cache
 
 Library download location: `~/.gradle/caches/modules-2/files-2.1`.

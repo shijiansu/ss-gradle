@@ -1,0 +1,137 @@
+buildscript { // 感觉这里类似该对象 (Project) 的构造函数逻辑
+    // 由于插件需要作为第一步去构造整个, 所以 plugins{} 必须放在前面.
+    // 这里的 classpath 是可以给 plugins{} 或 apply plugin 使用
+    println '[BUILD GRADLE - BUILDSCRIPT] gradle id is: ' + gradle.hashCode()
+    println '[BUILD GRADLE - BUILDSCRIPT] Home Dir: ' + gradle.gradleHomeDir
+    println '[BUILD GRADLE - BUILDSCRIPT] User Home Dir: ' + gradle.gradleUserHomeDir
+    println '[BUILD GRADLE - BUILDSCRIPT] Parent: ' + gradle.parent
+}
+
+plugins { // 解释和应用plugin二合一语法, plugins DLS
+    id 'org.springframework.boot' version '2.4.9'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java-library'
+}
+
+println '[BUILD GRADLE] gradle id is: ' + gradle.hashCode()
+println '[BUILD GRADLE] Home Dir: ' + gradle.gradleHomeDir
+println '[BUILD GRADLE] User Home Dir: ' + gradle.gradleUserHomeDir
+println '[BUILD GRADLE] Parent: ' + gradle.parent
+
+// 执行顺序前后和尾指相关
+apply from: rootProject.getRootDir().getAbsolutePath() + "/build2.gradle"
+apply plugin: "base" // 放这里也是可以的
+
+println '[BUILD GRADLE] build.gradle - after plugins{ }'
+println project.group // empty
+println project.gradle_properties_var
+
+group = 'su.shijian.gradle.lifecycle'
+version = '0.0.1-SNAPSHOT'
+
+println '[BUILD GRADLE] build.gradle - after var'
+println project.group
+println project.gradle_properties_var
+
+repositories {
+    gradlePluginPortal()
+    mavenLocal()
+}
+
+tasks.wrapper {
+    gradleVersion = '7.1.1'
+}
+
+java {
+    sourceCompatibility = '11'
+    dependencies {
+        // the keyword of "implementation" is from "java-library"
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    }
+}
+
+tasks.test { // can define as test{}, just showing test is a task here
+    useJUnitPlatform()
+}
+
+tasks.register('customTaskForConfiguration') {
+    group = 'custom'
+    println '[TASK] Configuration phase, because :customTaskForConfiguration is used in the build.'
+}
+
+tasks.register('customTaskForExecution') {
+    group = 'custom'
+    doLast {
+        println '[TASK] Execution phase'
+    }
+}
+
+gradle.allprojects {
+    afterEvaluate { project ->
+        if (tasks.findByName('test2') == null) {
+            println "[GRADLE - allprojects - afterEvaluate] Adding test task to $project"
+            project.task('test2') {
+                println "[TASK] run in Configuration phase"
+                group = 'custom'
+                doLast {
+                    println "[TASK] Running tests for $project"
+                }
+            }
+        }
+    }
+}
+
+gradle.taskGraph.beforeTask { Task task ->
+    println "[GRADLE] beforeTask Executing $task ..."
+}
+
+gradle.taskGraph.afterTask { Task task, TaskState state ->
+    if (state.failure) {
+        println "[GRADLE] afterTask FAILED"
+    } else {
+        println "[GRADLE] afterTask DONE"
+    }
+}
+
+gradle.afterProject { project ->
+    if (project.state.failure) {
+        println "[PROJECT] afterProject Evaluation of $project FAILED"
+    } else {
+        println "[PROJECT] afterProject Evaluation of $project succeeded"
+    }
+}
+
+apply plugin: "jacoco" // 放这里也是可以的
+
+apply from: rootProject.getRootDir().getAbsolutePath() + "/build3.gradle"
+
+// --------------------------------------------------------------------------------
+
+rootProject.buildscript {
+    println "[ROOT-PROJECT] buildscript{ }"
+}
+
+rootProject.afterEvaluate {
+    println "[ROOT-PROJECT] afterEvaluate{ }"
+}
+
+rootProject.allprojects {
+    println "[ROOT-PROJECT] allprojects{ }"
+}
+
+rootProject.beforeEvaluate {
+    println "[ROOT-PROJECT] beforeEvaluate{ }"
+}
+
+rootProject.subprojects {
+    println "[ROOT-PROJECT] subprojects{ }"
+}
+
+// --------------------------------------------------------------------------------
+
+println '********************************************************************************'
+println "project hash code: " + project.hashCode()
+println "gradle hash code: " + gradle.hashCode()
+println "gradle hash code: " + project.gradle.hashCode()
+println '********************************************************************************'

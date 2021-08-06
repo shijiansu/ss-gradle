@@ -1,0 +1,210 @@
+group = 'su.shijian.gradle.task'
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+tasks.wrapper {
+    gradleVersion = '7.1.1'
+}
+
+// ExtraPropertiesExtension (ext) - can bind to anyway
+// https://docs.gradle.org/current/dsl/org.gradle.api.plugins.ExtraPropertiesExtension.html
+ext {
+    myprop = "a"
+}
+assert project.myprop == "a"
+project.ext.set("myProp2", "b")
+assert project.myProp2 == "b"
+
+assert project.ext.has("foo") == false
+assert project.hasProperty("foo") == false
+
+project.ext { foo = "bar" }
+assert project.ext.get("foo") == "bar"
+assert project.ext.foo == "bar"
+assert project.ext["foo"] == "bar"
+assert project.foo == "bar"
+assert project["foo"] == "bar"
+assert foo == "bar"
+
+println "--------------------------------------------------------------------------------"
+
+// in this case, it binds to Object project
+ext.customMethod = { parameter1, parameter2 ->
+    println parameter1 + " : " + parameter2
+    println "${parameter1} : ${parameter2}"
+    println("${parameter1} : ${parameter2}")
+}
+
+customMethod("Hello", "World")
+project.customMethod("Hello", "World")
+
+println "--------------------------------------------------------------------------------"
+
+// better way (Groovy way), it can identify the data type
+def customMethod2(parameter1, parameter2) {
+    println parameter1 + " : " + parameter2
+    println "${parameter1} : ${parameter2}"
+    println("${parameter1} : ${parameter2}")
+}
+
+customMethod2("Hello", "World")
+project.customMethod2("Hello", "World")
+
+println "--------------------------------------------------------------------------------"
+
+task customTask3 {
+    group("custom")
+    ext.customMethod3 = { parameter1, parameter2 ->
+        println parameter1 + " : " + parameter2
+        println "${parameter1} : ${parameter2}"
+        println("${parameter1} : ${parameter2}")
+    }
+
+    doLast {
+        customMethod3(parameter1, parameter2)
+    }
+}
+
+tasks.customTask3.customMethod3 "Hello", "World"
+
+println "--------------------------------------------------------------------------------"
+
+task customTask4 {
+    group("custom")
+
+    doLast {
+        if (project.hasProperty("parameter1") && project.hasProperty("parameter2")) {
+            println parameter1 + " : " + parameter2
+            println "${parameter1} : ${parameter2}"
+            println("${parameter1} : ${parameter2}")
+        } else {
+            println "Missing one of the parameters"
+        }
+    }
+}
+
+ext.parameter1 = "Hello" // these 2 would use in Execution phase, ./gradlew customTask4
+ext.parameter2 = "World"
+
+println "--------------------------------------------------------------------------------"
+
+// ./gradlew propertyTypes -Pargs=ipsum -Dargs=lorem
+task propertyTypes() {
+    group 'custom'
+    description 'property types'
+    doLast {
+        // ipsum
+        if (project.hasProperty("args")) {
+            println "Our input argument with project property [" + project.getProperty("args") + "]"
+        }
+        // lorem
+        println "Our input argument with system property [" + System.getProperty("args") + "]"
+    }
+}
+
+println "--------------------------------------------------------------------------------"
+
+class PrintToolVersionTask extends DefaultTask {
+    String tool
+
+    @TaskAction
+    void printToolVersion() {
+        switch (tool) {
+            case 'java':
+                println System.getProperty("java.version")
+                break
+            case 'groovy':
+                println GroovySystem.version
+                break
+            default:
+                throw new IllegalArgumentException("Unknown tool")
+        }
+    }
+}
+
+task printJavaVersion(type: PrintToolVersionTask) {
+    group 'custom'
+    tool 'java'
+}
+
+task printGroovyVersion(type: PrintToolVersionTask) {
+    group 'custom'
+    tool 'groovy'
+}
+
+println "--------------------------------------------------------------------------------"
+
+task hello {
+    group('custom')
+    doLast {
+        println "hello"
+    }
+}
+
+task(hello2) {
+    group('custom')
+    doLast {
+        println "hello2"
+    }
+}
+
+task('hello3') {
+    group('custom')
+    doLast {
+        println "hello3"
+    }
+}
+
+tasks.create(name: 'hello4') {
+    group('custom')
+    doLast {
+        println "hello4"
+    }
+}
+
+// 将任务看成项目的属性的方式
+println tasks.hello.name
+println tasks['hello'].name
+// 使用tasks容器来定位
+println hello.name
+println project.hello.name
+// tasks.getByPath()方式来获得
+println tasks.getByPath('hello').path
+println tasks.getByPath(':hello').path
+
+hello.dependsOn hello2
+hello.finalizedBy hello3
+
+println "--------------------------------------------------------------------------------"
+
+task customHello {
+    group("custom")
+    doLast {
+        println "Hello"
+    }
+}
+
+task customDebug {
+    group("custom")
+
+    doLast {
+        println "Debugging"
+    }
+}
+
+def disableDebugBuild() {
+    def targetTasks = project.tasks.findAll { task ->
+        task.name.contains("Debug")
+    }
+    targetTasks.each {
+        println "disable debug task  :${it.name}"
+        it.setEnabled false
+    }
+}
+
+project.afterEvaluate {
+    disableDebugBuild()
+}

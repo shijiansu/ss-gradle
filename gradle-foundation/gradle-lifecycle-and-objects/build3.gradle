@@ -1,0 +1,4 @@
+println '[BUILD GRADLE 3] build3.gradle - gradle id is: ' +gradle.hashCode()
+println '[BUILD GRADLE 3] Home Dir: ' + gradle.gradleHomeDir
+println '[BUILD GRADLE 3] User Home Dir: ' + gradle.gradleUserHomeDir
+println '[BUILD GRADLE 3] Parent: ' + gradle.parent

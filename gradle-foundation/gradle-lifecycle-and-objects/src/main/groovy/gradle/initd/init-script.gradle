@@ -1,0 +1,155 @@
+initscript { // 感觉这里类似该对象 (Gradle) 的构造函数逻辑
+    println '[INIT SCRIPT - INITSCIPT] gradle id is: ' + gradle.hashCode()
+    println '[INIT SCRIPT - INITSCIPT] Home Dir: ' + gradle.gradleHomeDir
+    println '[INIT SCRIPT - INITSCIPT] User Home Dir: ' + gradle.gradleUserHomeDir
+    println '[INIT SCRIPT - INITSCIPT] Parent: ' + gradle.parent
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:5.14.2"
+    }
+}
+
+println '[INIT SCRIPT] gradle id is: ' + gradle.hashCode()
+println '[INIT SCRIPT] Home Dir: ' + gradle.gradleHomeDir
+println '[INIT SCRIPT] User Home Dir: ' + gradle.gradleUserHomeDir
+println '[INIT SCRIPT] Parent: ' + gradle.parent
+
+// https://docs.gradle.org/current/dsl/org.gradle.api.invocation.Gradle.html#org.gradle.api.invocation.Gradle:allprojects(org.gradle.api.Action)
+// The action is executed immediately against all projects which are already available.
+allprojects {
+    println "[INIT SCRIPT - ALL PROJECTS] allprojects{ }"
+
+    // https://docs.gradle.org/current/userguide/init_scripts.html
+    println "[INIT SCRIPT - ALL PROJECTS] before apply plugin"
+    apply plugin: "maven-publish"
+    apply plugin: com.diffplug.gradle.spotless.SpotlessPlugin
+    println "[INIT SCRIPT - ALL PROJECTS] after apply plugin"
+
+    println project.name // able to access
+    println project.group // empty
+    println project.gradle_properties_var // able to access
+
+    spotless {
+        java {
+            googleJavaFormat()
+        }
+    }
+
+    tasks.register("hello", GreetingTask)
+
+    afterEvaluate { project ->
+        {
+            println "[INIT SCRIPT - afterEvaluate] afterEvaluate"
+        }
+    }
+}
+
+abstract class GreetingTask extends DefaultTask {
+    GreetingTask() {
+        setGroup("custom")
+    }
+
+    @TaskAction
+    def greet() {
+        println "[TASK GreetingTask] Hello from GreetingTask"
+        println project.name // able to access
+        println project.group // able to access
+        println project.gradle_properties_var // able to access
+    }
+}
+
+// --------------------------------------------------------------------------------
+
+apply { // testing for the Action<T> interface
+    println "[INIT SCRIPT - APPLY] apply{ }"
+}
+
+// --------------------------------------------------------------------------------
+
+// immediately after a project is evaluated
+afterProject { // gradle.afterProject
+    println "[INIT SCRIPT - GRADLE] afterProject{ }"
+}
+
+// immediately before a project is evaluated
+beforeProject {
+    println "[INIT SCRIPT - GRADLE] beforeProject{ }"
+}
+
+// when the build is completed
+buildFinished {
+    println "[INIT SCRIPT - GRADLE] buildFinished{ }"
+}
+
+// when all projects for the build have been evaluated
+projectsEvaluated {
+    println "[INIT SCRIPT - GRADLE] projectsEvaluated{ }"
+}
+
+// when the projects for the build have been created from the settings
+projectsLoaded {
+    println "[INIT SCRIPT - GRADLE] projectsLoaded{ }"
+}
+
+// when the build settings have been loaded and evaluated
+settingsEvaluated {
+    println "[INIT SCRIPT - GRADLE] settingsEvaluated{ }"
+}
+
+// --------------------------------------------------------------------------------
+
+// rootProject.buildscript { // cannot put here -> The root project is not yet available for build.
+
+// --------------------------------------------------------------------------------
+
+gradle.addListener(new BuildListenerImpl())
+gradle.addListener(new ProjectEvaluationListenerImpl())
+gradle.addListener(new TaskExecutionListenerImpl())
+
+class BuildListenerImpl implements BuildListener {
+    @Override
+    void settingsEvaluated(Settings settings) {
+        println("[INIT SCRIPT - BUILD LISTENER] settingsEvaluated: " + settings.hashCode())
+    }
+
+    @Override
+    void projectsLoaded(Gradle gradle) {
+        println("[INIT SCRIPT - BUILD LISTENER] projectsLoaded: " + gradle.hashCode())
+    }
+
+    @Override
+    void projectsEvaluated(Gradle gradle) {
+        println("[INIT SCRIPT - BUILD LISTENER] projectsEvaluated: " + gradle.hashCode())
+    }
+
+    @Override
+    void buildFinished(BuildResult result) {
+        println("[INIT SCRIPT - BUILD LISTENER] buildFinished: " + result.getAction())
+    }
+}
+
+class ProjectEvaluationListenerImpl implements ProjectEvaluationListener {
+    @Override
+    void beforeEvaluate(Project project) {
+        println("[INIT SCRIPT - PROJECT LISTENER] beforeEvaluate: " + project.hashCode())
+    }
+
+    @Override
+    void afterEvaluate(Project project, ProjectState projectState) {
+        println("[INIT SCRIPT - PROJECT LISTENER] afterEvaluate: " + projectState.executed)
+    }
+}
+
+class TaskExecutionListenerImpl implements TaskExecutionListener {
+    @Override
+    void beforeExecute(Task task) {
+        println("[INIT SCRIPT - TASK LISTENER] beforeExecute: " + task.name)
+    }
+
+    @Override
+    void afterExecute(Task task, TaskState state) {
+        println("[INIT SCRIPT - TASK LISTENER] afterExecute: name=" + task.name + " state=" + state.toString())
+    }
+}

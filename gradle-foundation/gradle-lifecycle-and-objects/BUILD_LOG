@@ -1,0 +1,82 @@
+# Initialization phase
+[INIT SCRIPT - INITSCIPT] gradle id is: 557161358
+[INIT SCRIPT - INITSCIPT] Home Dir: /Users/shijian.su/.gradle/wrapper/dists/gradle-7.1.1-bin/f29rtwfnc96ub43tt7p47zsru/gradle-7.1.1
+[INIT SCRIPT - INITSCIPT] User Home Dir: /Users/shijian.su/.gradle
+[INIT SCRIPT - INITSCIPT] Parent: null
+[INIT SCRIPT] gradle id is: 557161358
+[INIT SCRIPT] Home Dir: /Users/shijian.su/.gradle/wrapper/dists/gradle-7.1.1-bin/f29rtwfnc96ub43tt7p47zsru/gradle-7.1.1
+[INIT SCRIPT] User Home Dir: /Users/shijian.su/.gradle
+[INIT SCRIPT] Parent: null
+[INIT SCRIPT - APPLY] apply{ }
+[SETTINGS SCRIPT] settings.gradle
+[SETTINGS SCRIPT] gradle id is: 557161358
+[SETTINGS SCRIPT] Home Dir: /Users/shijian.su/.gradle/wrapper/dists/gradle-7.1.1-bin/f29rtwfnc96ub43tt7p47zsru/gradle-7.1.1
+[SETTINGS SCRIPT] User Home Dir: /Users/shijian.su/.gradle
+[SETTINGS SCRIPT] Parent: null
+[INIT SCRIPT - BUILD LISTENER] settingsEvaluated: 798802219
+[INIT SCRIPT - GRADLE] settingsEvaluated{ }
+[INIT SCRIPT - BUILD LISTENER] projectsLoaded: 557161358
+[INIT SCRIPT - ALL PROJECTS] allprojects{ }
+[INIT SCRIPT - ALL PROJECTS] before apply plugin
+[INIT SCRIPT - ALL PROJECTS] after apply plugin
+gradle-lifecycle-and-objects
+
+gradle_properties_var
+[INIT SCRIPT - GRADLE] projectsLoaded{ }
+
+> Configure project : # Configuration phase
+[INIT SCRIPT - PROJECT LISTENER] beforeEvaluate: 1424846999
+[INIT SCRIPT - GRADLE] afterEvaluate{ }
+[BUILD GRADLE - BUILDSCRIPT] gradle id is: 557161358
+[BUILD GRADLE - BUILDSCRIPT] Home Dir: /Users/shijian.su/.gradle/wrapper/dists/gradle-7.1.1-bin/f29rtwfnc96ub43tt7p47zsru/gradle-7.1.1
+[BUILD GRADLE - BUILDSCRIPT] User Home Dir: /Users/shijian.su/.gradle
+[BUILD GRADLE - BUILDSCRIPT] Parent: null
+[BUILD GRADLE] gradle id is: 557161358
+[BUILD GRADLE] Home Dir: /Users/shijian.su/.gradle/wrapper/dists/gradle-7.1.1-bin/f29rtwfnc96ub43tt7p47zsru/gradle-7.1.1
+[BUILD GRADLE] User Home Dir: /Users/shijian.su/.gradle
+[BUILD GRADLE] Parent: null
+[BUILD GRADLE 2] build2.gradle - gradle id is: 557161358
+[BUILD GRADLE 2] Home Dir: /Users/shijian.su/.gradle/wrapper/dists/gradle-7.1.1-bin/f29rtwfnc96ub43tt7p47zsru/gradle-7.1.1
+[BUILD GRADLE 2] User Home Dir: /Users/shijian.su/.gradle
+[BUILD GRADLE 2] Parent: null
+[BUILD GRADLE] build.gradle - after plugins{ }
+
+gradle_properties_var
+[BUILD GRADLE] build.gradle - after var
+su.shijian.gradle.initd
+gradle_properties_var
+[BUILD GRADLE 3] build3.gradle - gradle id is: 557161358
+[BUILD GRADLE 3] Home Dir: /Users/shijian.su/.gradle/wrapper/dists/gradle-7.1.1-bin/f29rtwfnc96ub43tt7p47zsru/gradle-7.1.1
+[BUILD GRADLE 3] User Home Dir: /Users/shijian.su/.gradle
+[BUILD GRADLE 3] Parent: null
+[ROOT-PROJECT] buildscript{ }
+[ROOT-PROJECT] allprojects{ }
+********************************************************************************
+project hash code: 1424846999
+gradle hash code: 557161358
+gradle hash code: 557161358
+********************************************************************************
+[INIT SCRIPT - PROJECT LISTENER] afterEvaluate: true
+[INIT SCRIPT - GRADLE] afterProject{ }
+[PROJECT] afterProject Evaluation of root project 'gradle-lifecycle-and-objects' succeeded
+[INIT SCRIPT - afterEvaluate] afterEvaluate
+[GRADLE - allprojects - afterEvaluate] Adding test task to root project 'gradle-lifecycle-and-objects'
+[TASK] run in Configuration phase
+[ROOT-PROJECT] afterEvaluate{ }
+[INIT SCRIPT - BUILD LISTENER] projectsEvaluated: 557161358
+[INIT SCRIPT - GRADLE] projectsEvaluated{ }
+
+> Task :hello # Execution phase
+[INIT SCRIPT - TASK LISTENER] beforeExecute: hello
+[GRADLE] beforeTask Executing task ':hello' ...
+[TASK GreetingTask] Hello from GreetingTask
+gradle-lifecycle-and-objects
+su.shijian.gradle.initd
+gradle_properties_var
+[INIT SCRIPT - TASK LISTENER] afterExecute: name=hello state=org.gradle.api.internal.tasks.TaskStateInternal@6f488e59
+[GRADLE] afterTask DONE
+[INIT SCRIPT - BUILD LISTENER] buildFinished: Build
+[INIT SCRIPT - GRADLE] buildFinished{ }
+
+BUILD SUCCESSFUL in 1s
+1 actionable task: 1 executed

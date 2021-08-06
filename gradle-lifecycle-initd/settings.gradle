@@ -1,2 +1,0 @@
-rootProject.name = 'gradle-lifecycle-initd'
-println 'This is executed during the initialization phase.'

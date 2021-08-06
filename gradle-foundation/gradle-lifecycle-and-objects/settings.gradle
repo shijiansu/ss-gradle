@@ -1,0 +1,8 @@
+rootProject.name = 'gradle-lifecycle-and-objects'
+
+println '[SETTINGS SCRIPT] settings.gradle'
+
+println '[SETTINGS SCRIPT] gradle id is: ' +gradle.hashCode()
+println '[SETTINGS SCRIPT] Home Dir: ' + gradle.gradleHomeDir
+println '[SETTINGS SCRIPT] User Home Dir: ' + gradle.gradleUserHomeDir
+println '[SETTINGS SCRIPT] Parent: ' + gradle.parent

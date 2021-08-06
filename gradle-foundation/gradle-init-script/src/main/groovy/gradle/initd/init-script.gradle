@@ -1,0 +1,85 @@
+initscript {
+    repositories {
+        gradlePluginPortal()
+        maven { // example for custom repository, esp. for private repository
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:5.14.2"
+    }
+}
+
+// summary (待阅读源码后最终确认):
+// gradle.properties (Initialization phase) ->
+// settings.gradle (Initialization phase) ->
+// init.d (Initialization phase) ->
+// build.gradle (Configuration phase) ->
+// task executed by command line (Execution phase)
+allprojects {
+    // https://docs.gradle.org/current/userguide/init_scripts.html
+    println "[SYSTEM] Initialization - before apply plugin"
+    // apply common plugin
+    // Core plugins can use the plugin id directly
+    // List of plugins - https://docs.gradle.org/current/userguide/plugin_reference.html
+    apply plugin: "java-library" // directly use Plugin ID case
+    apply plugin: "maven-publish"
+    apply plugin: "jacoco"
+    // https://discuss.gradle.org/t/cannot-apply-plugin-by-id-in-init-gradle-script/30377
+    // 这里必须用 implementation class 全称 -> 如何获得?
+    // https://plugins.gradle.org/m2 这里找到对应的 jar, 下载, 改名为 zip, 解压 ->
+    // META-INF/gradle-plugins 点击 .properties 打开看到 implementation-class
+    apply plugin: com.diffplug.gradle.spotless.SpotlessPlugin
+
+    // plugins{} // cannot use this because not exists yet in the Initialization phase
+
+    println "[SYSTEM] Initialization - after apply plugin"
+    // load variables
+    println "[SYSTEM] ========================================"
+    println project.name // able to access. Loaded in Initialization phase, and access in Configuration phase
+    println project.group // empty, because this init.d files are loaded before the build.gradle
+    println project.fromApplicationGradleProperties // able to access
+    println "[SYSTEM] ========================================"
+
+    // apply common configuration for microservice environment
+    pluginManager.withPlugin('java-library') {
+        sourceCompatibility = '11'
+        dependencies {
+            implementation 'org.springframework.boot:spring-boot-starter-web'
+            testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        }
+        test {
+            useJUnitPlatform()
+        }
+    }
+
+    spotless {
+        java {
+            googleJavaFormat()
+        }
+    }
+
+    jacocoTestReport {
+        // dependsOn("test")
+        reports {
+            xml.enabled true
+        }
+    }
+
+    plugins.withType(JacocoPlugin) {
+        tasks["test"].finalizedBy 'jacocoTestReport'
+    }
+
+    // create new tasks
+    tasks.register("hello", GreetingTask)
+    tasks["hello"].group = "init.d new tasks"
+}
+
+abstract class GreetingTask extends DefaultTask {
+    @TaskAction
+    def greet() {
+        println "Hello from GreetingTask"
+        println project.name // able to access. Loaded in Initialization phase, and access in Execution phase
+        println project.group // able to access. Loaded in Configuration phase, and access in Execution phase
+    }
+}

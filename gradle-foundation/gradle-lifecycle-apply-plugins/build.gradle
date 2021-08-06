@@ -1,0 +1,14 @@
+buildscript {}
+
+plugins {
+    id 'java-library'
+}
+
+println '[BUILD GRADLE] build.gradle'
+println "group: " + project.group
+println "version: " + project.version
+
+tasks.wrapper {
+    gradleVersion = '7.1.1'
+}
+

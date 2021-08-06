@@ -1,0 +1,29 @@
+initscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:5.14.2"
+    }
+}
+
+allprojects { project ->
+    projectsLoaded {
+        println "[INIT SCRIPT - projectsLoaded] projectsLoaded{ }"
+
+        // https://docs.gradle.org/current/userguide/init_scripts.html
+        println "[INIT SCRIPT - projectsLoaded] before apply plugin"
+        apply plugin: "maven-publish"
+        apply plugin: com.diffplug.gradle.spotless.SpotlessPlugin
+
+        println "spotless: " + project.name // able to access
+        println "spotless: " + project.group // empty
+        println "spotless: " + project.version
+
+        spotless {
+            java {
+                googleJavaFormat()
+            }
+        }
+    }
+}
